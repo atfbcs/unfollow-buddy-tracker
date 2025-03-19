@@ -22,7 +22,7 @@ function afterUrlGenerator(cursor) {
 
 let csrftoken = getCookie("csrftoken"),
     ds_user_id = getCookie("ds_user_id"),
-    initialURL = \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24"}\`,
+    initialURL = \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24"}\`,
     doNext = true,
     nonFollowers = [],
     processedCount = 0;
@@ -61,6 +61,7 @@ async function startScript() {
 }
 
 function injectUI(nonFollowers) {
+    // Create styles for the component
     const styleSheet = document.createElement("style");
     styleSheet.textContent = \`
         @keyframes slideIn {
@@ -379,10 +380,12 @@ function injectUI(nonFollowers) {
     \`;
     document.head.appendChild(styleSheet);
     
+    // Create container
     const container = document.createElement("div");
     container.id = "nonFollowerList";
     container.className = "non-follower-container";
-
+    
+    // Create header
     const header = document.createElement("div");
     header.className = "non-follower-header";
     
@@ -397,35 +400,182 @@ function injectUI(nonFollowers) {
         container.style.animation = "fadeOut 0.3s forwards";
         setTimeout(() => container.remove(), 300);
     });
-
+    
     header.appendChild(title);
     header.appendChild(closeButton);
     container.appendChild(header);
-
+    
+    // Create search box
+    const searchBox = document.createElement("div");
+    searchBox.className = "non-follower-search";
+    
+    const searchIcon = document.createElement("span");
+    searchIcon.className = "non-follower-search-icon";
+    searchIcon.innerHTML = "🔍";
+    
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Search by username...";
+    searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = listContainer.querySelectorAll(".non-follower-item");
+        
+        items.forEach(item => {
+            const username = item.querySelector(".non-follower-username").textContent.toLowerCase();
+            if (username.includes(searchTerm)) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+        
+        // Show empty state if no results
+        const hasVisibleItems = Array.from(items).some(item => item.style.display !== "none");
+        updateEmptyState(hasVisibleItems ? null : "No results found");
+    });
+    
+    searchBox.appendChild(searchIcon);
+    searchBox.appendChild(searchInput);
+    container.appendChild(searchBox);
+    
+    // Create list container
     const listContainer = document.createElement("div");
     listContainer.className = "non-follower-list";
-
-    if (nonFollowers.length === 0) {
-        const emptyState = document.createElement("div");
-        emptyState.className = "non-follower-empty";
-        emptyState.innerHTML = "No non-followers found";
-        listContainer.appendChild(emptyState);
-    } else {
-        nonFollowers.forEach(user => {
-            const userElement = document.createElement("div");
-            userElement.className = "non-follower-item";
-            userElement.innerHTML = \`
-                <div class="non-follower-info">
-                    <span class="non-follower-username">@\${user.username}</span>
-                </div>
-                <button class="non-follower-button view" onclick="window.open('https://www.instagram.com/\${user.username}/', '_blank')">👁️</button>
+    
+    // Create empty state element (hidden by default)
+    const emptyState = document.createElement("div");
+    emptyState.className = "non-follower-empty";
+    emptyState.style.display = "none";
+    
+    function updateEmptyState(message = null) {
+        if (message) {
+            emptyState.innerHTML = \`
+                <div class="non-follower-empty-icon">🔎</div>
+                <div>\${message}</div>
             \`;
-            listContainer.appendChild(userElement);
-        });
+            emptyState.style.display = "flex";
+        } else {
+            emptyState.style.display = "none";
+        }
     }
-
+    
+    listContainer.appendChild(emptyState);
+    
+    // Show loading skeletons first
+    for (let i = 0; i < 5; i++) {
+        const skeleton = document.createElement("div");
+        skeleton.className = "non-follower-skeleton";
+        listContainer.appendChild(skeleton);
+    }
+    
+    // After a brief delay, remove skeletons and show actual content
+    setTimeout(() => {
+        // Remove skeletons
+        const skeletons = listContainer.querySelectorAll(".non-follower-skeleton");
+        skeletons.forEach(skeleton => skeleton.remove());
+        
+        // Add user items with staggered animation
+        if (nonFollowers.length === 0) {
+            updateEmptyState("No non-followers found");
+        } else {
+            nonFollowers.forEach((user, index) => {
+                const userElement = document.createElement("div");
+                userElement.className = "non-follower-item";
+                userElement.style.animationDelay = \`\${index * 0.05}s\`;
+                
+                // Get initials for avatar
+                const initials = user.username.substring(0, 2).toUpperCase();
+                
+                userElement.innerHTML = \`
+                    <div class="non-follower-info">
+                        <div class="non-follower-avatar">\${initials}</div>
+                        <div class="non-follower-details">
+                            <span class="non-follower-username">@\${user.username}</span>
+                        </div>
+                    </div>
+                    <div class="non-follower-action">
+                        <button class="non-follower-button view" title="View Profile">👁️</button>
+                    </div>
+                \`;
+                
+                // Add event listeners
+                const viewButton = userElement.querySelector(".non-follower-button.view");
+                viewButton.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    window.open(\`https://www.instagram.com/${user.username}/\`, "_blank");
+                });
+                
+                
+                // Add user element to container
+                listContainer.appendChild(userElement);
+            });
+        }
+    }, 800);
+    
     container.appendChild(listContainer);
+    
+    // Add footer with stats
+    const footer = document.createElement("div");
+    footer.className = "non-follower-footer";
+    footer.innerHTML = \`
+        <div class="non-follower-stats">
+            <span>Total: \${nonFollowers.length}</span>
+        </div>
+        <div>Updated just now</div>
+    \`;
+    container.appendChild(footer);
+    
+    // Add to document
     document.body.appendChild(container);
+    
+    // Focus search input
+    setTimeout(() => searchInput.focus(), 500);
+    
+    // Return API for controlling the UI
+    return {
+        close: () => {
+            container.style.animation = "fadeOut 0.3s forwards";
+            setTimeout(() => container.remove(), 300);
+        },
+        refresh: (newNonFollowers) => {
+            const count = document.querySelector(".non-follower-title-count");
+            count.textContent = newNonFollowers.length;
+            
+            // Clear existing items
+            const items = listContainer.querySelectorAll(".non-follower-item");
+            items.forEach(item => item.remove());
+            
+            // Show loading state
+            for (let i = 0; i < 3; i++) {
+                const skeleton = document.createElement("div");
+                skeleton.className = "non-follower-skeleton";
+                listContainer.appendChild(skeleton);
+            }
+            
+            // After a brief delay, remove skeletons and show actual content
+            setTimeout(() => {
+                // Remove skeletons
+                const skeletons = listContainer.querySelectorAll(".non-follower-skeleton");
+                skeletons.forEach(skeleton => skeleton.remove());
+                
+                if (newNonFollowers.length === 0) {
+                    updateEmptyState("All caught up!");
+                } else {
+                    newNonFollowers.forEach((user, index) => {
+                        // Create new user elements similar to original code
+                        // ...
+                    });
+                }
+                
+                // Update footer stats
+                const statsEl = footer.querySelector(".non-follower-stats");
+                statsEl.innerHTML = \`<span>Total: \${newNonFollowers.length}</span>\`;
+                
+                // Update "Updated" text
+                footer.querySelector("div:last-child").textContent = "Updated just now";
+            }, 800);
+        }
+    };
 }
 
 startScript();
