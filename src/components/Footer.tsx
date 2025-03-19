@@ -6,7 +6,7 @@ import { GitHubIcon, HeartIcon, InstagramIcon } from "./Icons";
 const Footer: React.FC = () => {
   return (
     <footer className="py-16 relative mt-20">
-      <div className="absolute inset-0 bg-gradient-to-t from-blue-100/50 to-transparent z-[-1]"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent z-[-1]"></div>
       <div className="noise opacity-[0.03]"></div>
       <div className="max-w-5xl mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        <div className="pt-8 border-t border-gray-200 text-center">
+        <div className="pt-8 border-t border-white/5 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             GhostFollower is not affiliated with or endorsed by Instagram or Meta.
           </p>

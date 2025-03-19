@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -129,6 +128,18 @@ export default {
 						transform: 'translateY(-15px)',
 						animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 20px 5px rgba(79, 70, 229, 0.2)' 
+					},
+					'50%': { 
+						boxShadow: '0 0 30px 10px rgba(79, 70, 229, 0.4)' 
+					}
+				},
+				'float-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-8px)' }
 				}
 			},
 			animation: {
@@ -139,7 +150,9 @@ export default {
 				'slide-in': 'slide-in 0.5s ease-out',
 				'slide-in-right': 'slide-in-right 0.5s ease-out',
 				'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
-				'bounce-gentle': 'bounce-gentle 3s ease-in-out infinite'
+				'bounce-gentle': 'bounce-gentle 3s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 4s ease-in-out infinite',
+				'float-subtle': 'float-subtle 6s ease-in-out infinite'
 			}
 		}
 	},
