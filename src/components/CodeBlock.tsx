@@ -21,7 +21,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
 
   return (
     <motion.div 
-      className={cn("relative rounded-lg overflow-hidden shadow-lg", className)}
+      className={cn("relative rounded-xl overflow-hidden shadow-2xl border border-white/10", className)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -38,26 +38,26 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
         </div>
         <motion.button
           onClick={copyToClipboard}
-          className="text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"
+          className="text-gray-300 hover:text-white transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           aria-label="Copy code"
         >
           {copied ? (
             <>
-              <CheckIcon size={16} />
+              <CheckIcon size={14} />
               <span className="text-xs">Copied!</span>
             </>
           ) : (
             <>
-              <CopyIcon size={16} />
+              <CopyIcon size={14} />
               <span className="text-xs">Copy</span>
             </>
           )}
         </motion.button>
       </div>
-      <div className="code-block overflow-x-auto bg-[#0f172a] p-4 max-h-[500px] overflow-y-auto">
-        <pre className="text-gray-100 font-mono text-sm">{code}</pre>
+      <div className="code-block bg-gradient-to-b from-[#0f172a] to-[#0f1729] p-5 max-h-[600px] overflow-y-auto">
+        <pre className="text-gray-100 font-mono text-sm leading-relaxed">{code}</pre>
       </div>
     </motion.div>
   );
