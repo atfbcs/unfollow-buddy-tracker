@@ -27,7 +27,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <div className="flex items-center justify-between bg-[#1e293b] px-5 py-3">
+      <div className="flex items-center justify-between bg-[#1e293b] px-5 py-3 rounded-t-lg">
         <div className="flex items-center space-x-2">
           <div className="flex space-x-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -56,7 +56,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
           )}
         </motion.button>
       </div>
-      <div className="code-block bg-gradient-to-b from-[#0f172a] to-[#0f1729] p-5 max-h-[600px] overflow-y-auto">
+      <div className="code-block bg-gradient-to-b from-[#0f172a] to-[#0f1729] p-5 max-h-[600px] overflow-y-auto rounded-none">
         <pre className="text-gray-100 font-mono text-sm leading-relaxed">{code}</pre>
       </div>
     </motion.div>
