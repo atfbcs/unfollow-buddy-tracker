@@ -152,7 +152,7 @@
 
 /* Code block styles */
 .code-block {
-  @apply bg-[#0f172a] text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm;
+  @apply bg-[#0f172a] text-gray-100 p-4 overflow-x-auto font-mono text-sm;
 }
 
 .code-block pre {

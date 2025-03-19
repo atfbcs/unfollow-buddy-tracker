@@ -57,7 +57,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
         </motion.button>
       </div>
       <div className="code-block bg-gradient-to-b from-[#0f172a] to-[#0f1729] p-5 max-h-[600px] overflow-y-auto">
-        <pre className="text-gray-100 font-mono text-sm leading-relaxed rounded-none">{code}</pre>
+        <pre className="text-gray-100 font-mono text-sm leading-relaxed">{code}</pre>
       </div>
     </motion.div>
   );
