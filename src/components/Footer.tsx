@@ -5,11 +5,15 @@ import { GitHubIcon, HeartIcon, InstagramIcon } from "./Icons";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="py-16 bg-gradient-to-b from-secondary/20 to-background mt-20">
-      <div className="max-w-5xl mx-auto px-4">
+    <footer className="py-16 relative mt-20">
+      <div className="absolute inset-0 bg-gradient-to-t from-blue-100/50 to-transparent z-[-1]"></div>
+      <div className="noise opacity-[0.03]"></div>
+      <div className="max-w-5xl mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">UnfollowedFinder</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              <span className="gradient-text">Ghost</span>Follower
+            </h3>
             <p className="text-sm text-muted-foreground">
               A simple tool to discover Instagram users who don't follow you back.
             </p>
@@ -63,10 +67,10 @@ const Footer: React.FC = () => {
         
         <div className="pt-8 border-t border-gray-200 text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            UnfollowedFinder is not affiliated with or endorsed by Instagram or Meta.
+            GhostFollower is not affiliated with or endorsed by Instagram or Meta.
           </p>
           <p className="text-xs text-muted-foreground flex items-center justify-center">
-            &copy; {new Date().getFullYear()} UnfollowedFinder. All rights reserved. Made with <HeartIcon className="mx-1 text-red-500" size={14} /> for Instagram users.
+            &copy; {new Date().getFullYear()} GhostFollower. All rights reserved. Made with <HeartIcon className="mx-1 text-red-500" size={14} /> for Instagram users.
           </p>
         </div>
       </div>

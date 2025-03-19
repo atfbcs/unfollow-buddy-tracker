@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import Tutorial from "@/components/Tutorial";
@@ -117,13 +118,16 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 overflow-hidden">
+    <div className="min-h-screen overflow-hidden">
+      <div className="fixed inset-0 bg-gradient-to-br from-indigo-50 via-white to-blue-50 z-[-2]"></div>
+      <div className="noise z-[-1]"></div>
+      
       <Header />
       
       {/* Hero Section */}
       <section 
         id="hero-section"
-        className="relative pt-20 pb-32 overflow-hidden transition-all duration-300 ease-out"
+        className="relative pt-24 pb-32 overflow-hidden transition-all duration-300 ease-out"
         style={{ backgroundSize: "105% 105%", backgroundPosition: "50% 50%" }}
       >
         <div className="max-w-7xl mx-auto px-4 relative z-10">
@@ -134,7 +138,7 @@ const Index = () => {
               transition={{ duration: 0.7 }}
               className="mb-4"
             >
-              <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <span className="inline-block py-1 px-4 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium border border-blue-200 shadow-sm">
                 Instagram Analytics Tool
               </span>
             </motion.div>
@@ -143,7 +147,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-5xl md:text-6xl lg:text-7xl font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-700"
+              className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 gradient-text"
             >
               Discover Who Doesn't<br />Follow You Back
             </motion.h1>
@@ -164,37 +168,42 @@ const Index = () => {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <a 
+              <motion.a 
                 href="#tutorial" 
-                className="px-8 py-3 rounded-lg bg-primary text-white font-medium transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium transition-all hover:shadow-lg hover:shadow-blue-500/20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Start Tutorial
-              </a>
-              <a 
+              </motion.a>
+              <motion.a 
                 href="#code" 
-                className="px-8 py-3 rounded-lg bg-white border border-gray-200 shadow-sm text-gray-800 font-medium transition-all hover:shadow-md"
+                className="px-8 py-3 rounded-lg glass-card text-gray-800 font-medium transition-all hover:shadow-md"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Get the Script
-              </a>
+              </motion.a>
             </motion.div>
           </div>
         </div>
         
         {/* Decorative Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -top-[400px] -right-[400px] w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl"></div>
-          <div className="absolute -bottom-[300px] -left-[300px] w-[600px] h-[600px] rounded-full bg-blue-400/5 blur-3xl"></div>
+          <div className="absolute -top-[400px] -right-[400px] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/10 blur-3xl"></div>
+          <div className="absolute -bottom-[300px] -left-[300px] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-purple-400/10 to-blue-500/10 blur-3xl"></div>
         </div>
       </section>
       
       {/* How It Works Section */}
-      <section className="py-20 bg-white" id="how-it-works">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-20 glass-card mx-4 md:mx-8 lg:mx-16 xl:mx-auto max-w-7xl my-8 relative" id="how-it-works">
+        <div className="noise opacity-10"></div>
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block py-1 px-4 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium mb-4 border border-blue-200 shadow-sm">
               Simple Process
             </span>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">How It Works</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4 gradient-text">How It Works</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our script uses Instagram's own APIs to identify accounts that don't follow you back. 
               It's simple, safe, and runs directly in your browser.
@@ -222,10 +231,11 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="glass-card p-6 hover:shadow-xl transition-all duration-300"
+                whileHover={{ y: -5 }}
               >
-                <div className="bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-primary font-semibold">{index + 1}</span>
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                  <span className="text-white font-semibold">{index + 1}</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                 <p className="text-muted-foreground">{item.description}</p>
@@ -239,19 +249,21 @@ const Index = () => {
       <Tutorial />
       
       {/* Get the Script Section */}
-      <section className="py-20 bg-secondary/30" id="code">
-        <div className="max-w-5xl mx-auto px-4">
+      <section className="py-20 relative" id="code">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/5 to-blue-900/5 z-[-1]"></div>
+        <div className="noise opacity-[0.03]"></div>
+        <div className="max-w-5xl mx-auto px-4 relative">
           <div className="text-center mb-12">
-            <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block py-1 px-4 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium mb-4 border border-blue-200 shadow-sm">
               The Script
             </span>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">Copy & Run the Script</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4 gradient-text">Copy & Run the Script</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
               Copy the script below and paste it into your browser's console when you're on Instagram.
             </p>
           </div>
           
-          <div className="glass rounded-xl p-8 shadow-lg">
+          <div className="glass-card p-8 shadow-2xl">
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-2">Script Details</h3>
               <p className="text-muted-foreground text-sm">
@@ -279,10 +291,10 @@ const Index = () => {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <span className="inline-block py-1 px-4 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium mb-4 border border-blue-200 shadow-sm">
               Questions & Answers
             </span>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4 gradient-text">Frequently Asked Questions</h2>
           </div>
           
           <div className="space-y-6">
@@ -314,7 +326,8 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="glass rounded-xl p-6 shadow-sm"
+                className="glass-card p-6 hover:shadow-xl transition-all duration-300"
+                whileHover={{ y: -5 }}
               >
                 <h3 className="text-lg font-medium mb-2">{item.question}</h3>
                 <p className="text-muted-foreground">{item.answer}</p>
