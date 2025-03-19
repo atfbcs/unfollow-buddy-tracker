@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import Tutorial from "@/components/Tutorial";
@@ -6,49 +5,96 @@ import Footer from "@/components/Footer";
 import CodeBlock from "@/components/CodeBlock";
 import { motion } from "framer-motion";
 
-const scriptCode = `function getCookie(b) {
-    let c = \`; \${document.cookie}\`,
-        a = c.split(\`; \${b}=\`);
-    if (2 === a.length) return a.pop().split(";").shift()
+const scriptCode = `function getCookie(cookieName) {
+  let cookies = \`; \${document.cookie}\`,
+      parts = cookies.split(\`; \${cookieName}=\`);
+  if (2 === parts.length) return parts.pop().split(";").shift()
 }
 
-function sleep(a) {
-    return new Promise(b => {
-        setTimeout(b, a)
-    })
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
 }
 
-function afterUrlGenerator(a) {
-    return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${a}"}\`
+function afterUrlGenerator(cursor) {
+  return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${cursor}"}\`
 }
 
-function unfollowUserUrlGenerator(a) {
-    return \`https://www.instagram.com/web/friendships/\${a}/unfollow/\`
+function unfollowUserUrlGenerator(userId) {
+  return \`https://www.instagram.com/web/friendships/\${userId}/unfollow/\`
 }
-let followedPeople, csrftoken = getCookie("csrftoken"),
+
+let followedPeople, 
+    csrftoken = getCookie("csrftoken"),
     ds_user_id = getCookie("ds_user_id"),
     initialURL = \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24"}\`,
-    doNext = !0,
-    filteredList = [],
-    getUnfollowCounter = 0,
-    scrollCicle = 0;
+    doNext = true,
+    nonFollowers = [],
+    processedCount = 0,
+    batchCount = 0;
+
 async function startScript() {
-    for (var c, d, e, b, f, g = Math.floor; doNext;) {
-        let a;
-        try {
-            a = await fetch(initialURL).then(a => a.json())
-        } catch (h) {
-            continue
-        }
-        followedPeople || (followedPeople = a.data.user.edge_follow.count), doNext = a.data.user.edge_follow.page_info.has_next_page, initialURL = afterUrlGenerator(a.data.user.edge_follow.page_info.end_cursor), getUnfollowCounter += a.data.user.edge_follow.edges.length, a.data.user.edge_follow.edges.forEach(a => {
-            a.node.follows_viewer || filteredList.push(a.node)
-        }), console.clear(), console.log("%c Lijst van te \\"populaire\\" personen.", "background: #222; color: #FC4119;font-size: 13px;"), filteredList.forEach(a => {
-            console.log(a.username)
-        }), await sleep(g(400 * Math.random()) + 1e3), scrollCicle++, 6 < scrollCicle && (scrollCicle = 0, console.log("%c w817", "background: #222; color: ##FF0000;font-size: 35px;"), await sleep(1e4))
+  console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+  console.log("%c Starting analysis...", "color: #6b7280; font-style: italic;");
+  
+  while (doNext) {
+    let response;
+    try {
+      response = await fetch(initialURL).then(res => res.json());
+    } catch (error) {
+      console.log("%c Network error, retrying...", "color: #ef4444;");
+      continue;
     }
-    console.log("%c 💯" , "background: #222; color: #bada55;font-size: 25px;")
+    
+    // Initialize total count on first run
+    if (!followedPeople) {
+      followedPeople = response.data.user.edge_follow.count;
+      console.log("%c ACCOUNT SUMMARY ", "background: #1e40af; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px;");
+      console.log(\`%c Total accounts you follow: \${followedPeople}\`, "color: #6b7280;");
+    }
+    
+    // Update URL for next batch
+    doNext = response.data.user.edge_follow.page_info.has_next_page;
+    initialURL = afterUrlGenerator(response.data.user.edge_follow.page_info.end_cursor);
+    
+    // Process accounts
+    processedCount += response.data.user.edge_follow.edges.length;
+    response.data.user.edge_follow.edges.forEach(edge => {
+      if (!edge.node.follows_viewer) {
+        nonFollowers.push(edge.node);
+      }
+    });
+    
+    // Display progress
+    console.clear();
+    console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+    console.log(\`%c Processed: \${processedCount}/\${followedPeople} accounts (\${Math.round((processedCount/followedPeople) * 100)}%)\`, "color: #6b7280;");
+    console.log("%c ACCOUNTS NOT FOLLOWING YOU BACK ", "background: #4f46e5; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px; margin-top: 10px;");
+    
+    nonFollowers.forEach(user => {
+      console.log(\`%c @\${user.username}\`, "color: #1e40af; font-weight: bold;");
+    });
+    
+    // Add delay between batches
+    await sleep(Math.floor(400 * Math.random()) + 1000);
+    
+    // Add longer pause every 6 batches to avoid rate limiting
+    batchCount++;
+    if (6 < batchCount) {
+      batchCount = 0;
+      console.log("%c Taking a break to avoid rate limiting...", "color: #f59e0b; font-style: italic;");
+      await sleep(10000);
+    }
+  }
+  
+  // Final results
+  console.log("%c ANALYSIS COMPLETE ", "background: #10b981; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+  console.log(\`%c Total accounts processed: \${processedCount}\`, "color: #6b7280;");
+  console.log(\`%c Found \${nonFollowers.length} accounts that don't follow you back\`, "color: #6b7280;");
 }
-startScript()`;
+
+startScript();`;
 
 const Index = () => {
   useEffect(() => {
@@ -219,7 +265,7 @@ const Index = () => {
             <div>
               <h4 className="font-medium mb-2">Important Notes:</h4>
               <ul className="list-disc pl-6 space-y-2 text-sm text-muted-foreground">
-                <li>This script runs entirely in your browser and doesn't send data to any external servers.</li>
+                <li>This script runs entirely in your browser and doesn't send your data to any external servers.</li>
                 <li>It only reads information that's already accessible to you when logged into Instagram.</li>
                 <li>For large accounts, the script may take several minutes to complete as it processes accounts in batches.</li>
                 <li>The script only identifies who doesn't follow you back; it doesn't automatically unfollow anyone.</li>

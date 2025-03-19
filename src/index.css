@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -92,13 +93,14 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-sans font-medium tracking-tight;
+    @apply font-display font-medium tracking-tight;
   }
 
   h1 {
@@ -114,18 +116,26 @@
   }
 
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/40;
+    @apply bg-white/90 backdrop-blur-md border border-white/40 shadow-lg;
   }
 
   .section-transition {
     @apply transition-all duration-500 ease-in-out;
   }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -142,7 +152,7 @@
 
 /* Code block styles */
 .code-block {
-  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm;
+  @apply bg-[#0f172a] text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm;
 }
 
 .code-block pre {
@@ -161,4 +171,32 @@
 }
 .page-exit-active {
   @apply opacity-0 transition-opacity duration-300 ease-in-out;
+}
+
+/* Custom gradient backgrounds */
+.bg-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+.bg-radial {
+  background-image: radial-gradient(circle at center, rgba(0,0,0,0.01) 0, rgba(0,0,0,0.02) 100%);
+}
+
+/* Enhanced transitions */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Card transitions */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }

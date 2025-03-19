@@ -3,50 +3,98 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CodeBlock from "./CodeBlock";
+import { ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
 
-const scriptCode = `function getCookie(b) {
-    let c = \`; \${document.cookie}\`,
-        a = c.split(\`; \${b}=\`);
-    if (2 === a.length) return a.pop().split(";").shift()
+const scriptCode = `function getCookie(cookieName) {
+  let cookies = \`; \${document.cookie}\`,
+      parts = cookies.split(\`; \${cookieName}=\`);
+  if (2 === parts.length) return parts.pop().split(";").shift()
 }
 
-function sleep(a) {
-    return new Promise(b => {
-        setTimeout(b, a)
-    })
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
 }
 
-function afterUrlGenerator(a) {
-    return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${a}"}\`
+function afterUrlGenerator(cursor) {
+  return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${cursor}"}\`
 }
 
-function unfollowUserUrlGenerator(a) {
-    return \`https://www.instagram.com/web/friendships/\${a}/unfollow/\`
+function unfollowUserUrlGenerator(userId) {
+  return \`https://www.instagram.com/web/friendships/\${userId}/unfollow/\`
 }
-let followedPeople, csrftoken = getCookie("csrftoken"),
+
+let followedPeople, 
+    csrftoken = getCookie("csrftoken"),
     ds_user_id = getCookie("ds_user_id"),
     initialURL = \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24"}\`,
-    doNext = !0,
-    filteredList = [],
-    getUnfollowCounter = 0,
-    scrollCicle = 0;
+    doNext = true,
+    nonFollowers = [],
+    processedCount = 0,
+    batchCount = 0;
+
 async function startScript() {
-    for (var c, d, e, b, f, g = Math.floor; doNext;) {
-        let a;
-        try {
-            a = await fetch(initialURL).then(a => a.json())
-        } catch (h) {
-            continue
-        }
-        followedPeople || (followedPeople = a.data.user.edge_follow.count), doNext = a.data.user.edge_follow.page_info.has_next_page, initialURL = afterUrlGenerator(a.data.user.edge_follow.page_info.end_cursor), getUnfollowCounter += a.data.user.edge_follow.edges.length, a.data.user.edge_follow.edges.forEach(a => {
-            a.node.follows_viewer || filteredList.push(a.node)
-        }), console.clear(), console.log("%c Lijst van te \\"populaire\\" personen.", "background: #222; color: #FC4119;font-size: 13px;"), filteredList.forEach(a => {
-            console.log(a.username)
-        }), await sleep(g(400 * Math.random()) + 1e3), scrollCicle++, 6 < scrollCicle && (scrollCicle = 0, console.log("%c w817", "background: #222; color: ##FF0000;font-size: 35px;"), await sleep(1e4))
+  console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+  console.log("%c Starting analysis...", "color: #6b7280; font-style: italic;");
+  
+  while (doNext) {
+    let response;
+    try {
+      response = await fetch(initialURL).then(res => res.json());
+    } catch (error) {
+      console.log("%c Network error, retrying...", "color: #ef4444;");
+      continue;
     }
-    console.log("%c 💯" , "background: #222; color: #bada55;font-size: 25px;")
+    
+    // Initialize total count on first run
+    if (!followedPeople) {
+      followedPeople = response.data.user.edge_follow.count;
+      console.log("%c ACCOUNT SUMMARY ", "background: #1e40af; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px;");
+      console.log(\`%c Total accounts you follow: \${followedPeople}\`, "color: #6b7280;");
+    }
+    
+    // Update URL for next batch
+    doNext = response.data.user.edge_follow.page_info.has_next_page;
+    initialURL = afterUrlGenerator(response.data.user.edge_follow.page_info.end_cursor);
+    
+    // Process accounts
+    processedCount += response.data.user.edge_follow.edges.length;
+    response.data.user.edge_follow.edges.forEach(edge => {
+      if (!edge.node.follows_viewer) {
+        nonFollowers.push(edge.node);
+      }
+    });
+    
+    // Display progress
+    console.clear();
+    console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+    console.log(\`%c Processed: \${processedCount}/\${followedPeople} accounts (\${Math.round((processedCount/followedPeople) * 100)}%)\`, "color: #6b7280;");
+    console.log("%c ACCOUNTS NOT FOLLOWING YOU BACK ", "background: #4f46e5; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px; margin-top: 10px;");
+    
+    nonFollowers.forEach(user => {
+      console.log(\`%c @\${user.username}\`, "color: #1e40af; font-weight: bold;");
+    });
+    
+    // Add delay between batches
+    await sleep(Math.floor(400 * Math.random()) + 1000);
+    
+    // Add longer pause every 6 batches to avoid rate limiting
+    batchCount++;
+    if (6 < batchCount) {
+      batchCount = 0;
+      console.log("%c Taking a break to avoid rate limiting...", "color: #f59e0b; font-style: italic;");
+      await sleep(10000);
+    }
+  }
+  
+  // Final results
+  console.log("%c ANALYSIS COMPLETE ", "background: #10b981; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
+  console.log(\`%c Total accounts processed: \${processedCount}\`, "color: #6b7280;");
+  console.log(\`%c Found \${nonFollowers.length} accounts that don't follow you back\`, "color: #6b7280;");
 }
-startScript()`;
+
+startScript();`;
 
 interface Step {
   title: string;
@@ -149,50 +197,72 @@ const Tutorial: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 md:py-20" id="tutorial">
-      <div className="text-center mb-12 animate-fade-up">
-        <h2 className="text-3xl md:text-4xl font-semibold mb-4">Step-by-Step Tutorial</h2>
+    <div className="max-w-5xl mx-auto px-4 py-16 md:py-24" id="tutorial">
+      <motion.div 
+        className="text-center mb-16"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+      >
+        <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+          Step-by-Step Guide
+        </span>
+        <h2 className="text-3xl md:text-4xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-700">
+          How to Find Non-Followers
+        </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Follow these steps to find out who doesn't follow you back on Instagram.
+          Follow these simple steps to discover who doesn't follow you back on Instagram.
         </p>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <div className="md:col-span-1 space-y-2">
           {steps.map((step, index) => (
-            <button
+            <motion.button
               key={index}
               onClick={() => setCurrentStep(index)}
               className={cn(
-                "w-full text-left p-4 rounded-lg transition-all duration-300 hover:bg-secondary",
+                "w-full text-left p-4 rounded-lg transition-all duration-300 flex items-center",
                 currentStep === index 
-                  ? "bg-primary text-white hover:bg-primary/90" 
-                  : "bg-secondary/50"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "bg-secondary/50 hover:bg-secondary"
               )}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <span className="flex items-center">
-                <span className={cn(
-                  "flex items-center justify-center w-6 h-6 rounded-full mr-3 text-xs",
-                  currentStep === index ? "bg-white text-primary" : "bg-primary/10 text-primary"
-                )}>
-                  {index + 1}
-                </span>
-                <span>{step.title}</span>
-              </span>
-            </button>
+              <div className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-full mr-3 text-xs",
+                currentStep === index 
+                  ? "bg-white text-primary" 
+                  : "bg-primary/10 text-primary"
+              )}>
+                {index + 1}
+              </div>
+              <span className="font-medium">{step.title}</span>
+              {currentStep > index && (
+                <CheckCircle size={16} className="ml-auto text-green-500" />
+              )}
+            </motion.button>
           ))}
         </div>
 
         <div className="md:col-span-2">
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-lg shadow-lg p-6 glass"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-xl shadow-lg p-8 glass"
           >
-            <h3 className="text-xl font-semibold mb-4">{steps[currentStep].title}</h3>
+            <h3 className="text-xl font-semibold mb-6 flex items-center">
+              <span className="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                {currentStep + 1}
+              </span>
+              {steps[currentStep].title}
+            </h3>
             <div className="prose prose-blue max-w-none">
               {steps[currentStep].description}
             </div>
@@ -200,34 +270,40 @@ const Tutorial: React.FC = () => {
               <img 
                 src={steps[currentStep].image} 
                 alt={steps[currentStep].title} 
-                className="rounded-lg mt-4 w-full"
+                className="rounded-lg mt-6 w-full shadow-md"
               />
             )}
             <div className="flex justify-between mt-8">
-              <button
+              <motion.button
                 onClick={prevStep}
                 disabled={currentStep === 0}
                 className={cn(
-                  "px-4 py-2 rounded-lg transition-colors",
+                  "px-4 py-2 rounded-lg transition-colors flex items-center gap-2",
                   currentStep === 0 
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
                     : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                 )}
+                whileHover={currentStep !== 0 ? { scale: 1.02 } : {}}
+                whileTap={currentStep !== 0 ? { scale: 0.98 } : {}}
               >
+                <ArrowLeft size={16} />
                 Previous
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={nextStep}
                 disabled={currentStep === steps.length - 1}
                 className={cn(
-                  "px-4 py-2 rounded-lg transition-colors",
+                  "px-4 py-2 rounded-lg transition-colors flex items-center gap-2",
                   currentStep === steps.length - 1 
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
                     : "bg-primary hover:bg-primary/90 text-white"
                 )}
+                whileHover={currentStep !== steps.length - 1 ? { scale: 1.02 } : {}}
+                whileTap={currentStep !== steps.length - 1 ? { scale: 0.98 } : {}}
               >
                 Next
-              </button>
+                <ArrowRight size={16} />
+              </motion.button>
             </div>
           </motion.div>
         </div>
