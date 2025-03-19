@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
           className="animate-fade-in"
         >
           <h1 className="text-2xl font-semibold tracking-tight">
-            <span className="gradient-text">Ghost</span>Follower
+            <span className="gradient-text">Not</span>Following
           </h1>
         </motion.div>
         

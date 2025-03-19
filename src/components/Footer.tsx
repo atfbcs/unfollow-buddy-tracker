@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              <span className="gradient-text">Ghost</span>Follower
+              <span className="gradient-text">Not</span>Following
             </h3>
             <p className="text-sm text-muted-foreground">
               A simple tool to discover Instagram users who don't follow you back.
@@ -67,10 +67,10 @@ const Footer: React.FC = () => {
         
         <div className="pt-8 border-t border-gray-200 text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            GhostFollower is not affiliated with or endorsed by Instagram or Meta.
+            NotFollowing is not affiliated with or endorsed by Instagram or Meta.
           </p>
           <p className="text-xs text-muted-foreground flex items-center justify-center">
-            &copy; {new Date().getFullYear()} GhostFollower. All rights reserved. Made with <HeartIcon className="mx-1 text-red-500" size={14} /> for Instagram users.
+            &copy; {new Date().getFullYear()} NotFollowing. All rights reserved. Made with <HeartIcon className="mx-1 text-red-500" size={14} /> for Instagram users.
           </p>
         </div>
       </div>
