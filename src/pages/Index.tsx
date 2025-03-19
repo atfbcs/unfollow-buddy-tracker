@@ -1,17 +1,22 @@
-
-import React from "react";
-import Header from "@/components/Header";
+import React, { useRef } from "react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CodeBlock from "@/components/CodeBlock";
 import { motion } from "framer-motion";
-import { usePlatform } from "@/contexts/PlatformContext";
 import { PlatformSelector } from "@/components/PlatformSelector";
+import CodeBlock from "@/components/CodeBlock";
+import { usePlatform } from "@/contexts/PlatformContext";
 import InstagramTutorial from "@/components/InstagramTutorial";
 import TwitterTutorial from "@/components/TwitterTutorial";
-import { Instagram, Twitter } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Empty script codes to prevent template string errors
-const instagramScriptCode = `function getCookie(cookieName) {
+const Index: React.FC = () => {
+  const { platform } = usePlatform();
+  const tutorialRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLDivElement>(null);
+
+  const getScriptContent = () => {
+    return platform === "instagram"
+      ? `function getCookie(cookieName) {
     let cookies = document.cookie,
         parts = cookies.split(\`; \${cookieName}=\`);
     if (parts.length === 2) return parts.pop().split(";").shift();
@@ -594,9 +599,8 @@ function injectUI(nonFollowers) {
     };
 }
 
-startScript();
-`;
-const twitterScriptCode = `(async function() {
+startScript();`
+      : `(async function() {
   /* ====== Extraction Functions ====== */
   // Pause execution for a given duration
   function sleep(ms) {
@@ -1089,75 +1093,81 @@ const twitterScriptCode = `(async function() {
   
   // Inject the UI with the non-followers list
   injectUI(nonFollowers);
-})();
-`;
+})();`;
+  };
 
-const IndexPage = () => {
-  const { platform } = usePlatform();
+  const scrollToTutorial = () => tutorialRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToCode = () => codeRef.current?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-      <main className="container px-4 py-0 mx-auto max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-sm mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
-            {platform === "instagram" ? (
-              <>
-                <Instagram className="h-8 w-8 text-pink-500" />
-                <span>Instagram</span>
-              </>
-            ) : (
-              <>
-                <Twitter className="h-8 w-8 text-blue-400" />
-                <span>Twitter</span>
-              </>
-            )}
-          </h1>
-          
-          <PlatformSelector className="-mb-8" />
-          
-          <div className="-space-y-10">
-            {platform === "instagram" ? (
-              <InstagramTutorial />
-            ) : (
-              <TwitterTutorial />
-            )}
-            
-            <div className="-py-10">
-              <h2 className="text-xl font-semibold mb-4">The Script</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Copy this script and paste it into your browser's console when you&apos;re on 
-                {platform === "instagram" ? " Instagram" : " Twitter's following page"}.
-              </p>
-              <CodeBlock
-                code={platform === "instagram" ? instagramScriptCode : twitterScriptCode}
-                language="javascript"
-              />
-            </div>
-            
-            <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-200">Important Notes:</h3>
-              <ul className="mt-2 list-disc pl-5 space-y-1 text-yellow-700 dark:text-yellow-300">
-                <li>This tool is for educational purposes only.</li>
-                <li>The script runs entirely in your browser and no data is sent to any server.</li>
-                <li>The script may stop working if {platform === "instagram" ? "Instagram" : "Twitter"} changes their website structure.</li>
-                <li>Using automated tools against {platform === "instagram" ? "Instagram" : "Twitter"}'s Terms of Service may result in account limitations.</li>
-              </ul>
-            </div>
+    <div className="min-h-screen relative bg-background">
+      <Navbar onTutorialClick={scrollToTutorial} onCodeClick={scrollToCode} />
+
+      {/* ✅ TUTORIAL SECTION MET VOLLEDIGE HOOGTE BACKGROUND */}
+      <div ref={tutorialRef}>
+        <section id="tutorial" className="relative py-20 min-h-[100vh] flex items-center overflow-hidden">
+          {/* Background Elements (alleen binnen deze sectie) */}
+          <div className="absolute inset-0 w-full h-full bg-grid z-0"></div>
+          <div className="absolute top-1/2 left-1/2 w-[80vw] h-[80vh] bg-gradient-to-r from-blue-400 to-purple-500 opacity-10 blur-3xl rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            <Tabs defaultValue="instagram" className="w-full max-w-5xl mx-auto">
+              <div className="flex justify-center mb-0">
+                <TabsList>
+                  <TabsTrigger value="instagram">Instagram</TabsTrigger>
+                  <TabsTrigger value="twitter">Twitter</TabsTrigger>
+                </TabsList>
+              </div>
+              <TabsContent value="instagram">
+                <InstagramTutorial />
+              </TabsContent>
+              <TabsContent value="twitter">
+                <TwitterTutorial />
+              </TabsContent>
+            </Tabs>
           </div>
-        </motion.div>
-      </main>
+        </section>
+      </div>
+
+      {/* ✅ CODE SECTION MET EIGEN BACKGROUND */}
+      <div ref={codeRef}>
+        <section id="code" className="relative pt-20 overflow-hidden bg-gradient-to-b from-background to-background/90">
+          {/* Background alleen hier, niet in de footer */}
+          <div className="absolute inset-0 w-full h-full bg-grid z-0"></div>
+          <div className="absolute top-1/2 left-1/2 w-[80vw] h-[80vh]  opacity-10 blur-3xl rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Get The Script</h2>
+              <p className="text-lg text-foreground/70 max-w-xl mx-auto">
+                Copy the code below and follow the instructions in the tutorial.
+              </p>
+              
+              <div className="mt-6 flex justify-center">
+                <PlatformSelector className="mb-8" />
+              </div>
+            </motion.div>
+
+            <CodeBlock code={getScriptContent()} language="javascript" className="max-w-4xl mx-auto" />
+          </div>
+        </section>
+      </div>
+
+      {/* ✅ FOOTER ZONDER BACKGROUND */}
       <Footer />
+
+      {/* Buy Me a Coffee Button */}
       <a
         href="https://www.buymeacoffee.com/atfbcs"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 bg-yellow-400 text-black px-3 py-2 rounded-full shadow-md font-medium text-smflex items-center gap-2 hover:bg-yellow-500 transition-all z-[1000]"
+        className="fixed bottom-4 right-4 bg-yellow-400 text-black px-3 py-2 rounded-full shadow-md font-medium text-sm flex items-center gap-2 hover:bg-yellow-500 transition-all z-[1000]"
       >
         ☕ Buy Me a Coffee
       </a>
@@ -1165,4 +1175,4 @@ const IndexPage = () => {
   );
 };
 
-export default IndexPage;
+export default Index;

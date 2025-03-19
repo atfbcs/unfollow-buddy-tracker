@@ -5,7 +5,7 @@ import { GitHubIcon, HeartIcon, InstagramIcon } from "./Icons";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="py-8 relative mt-20">
+    <footer className="pb-8 relative ">
       <div className="absolute inset-0 bg-gradient-to-t from-blue-100/50 to-transparent z-[-1]"></div>
       <div className="noise opacity-[0.03]"></div>
       <div className="max-w-5xl mx-auto px-4 relative z-10">
