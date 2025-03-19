@@ -21,7 +21,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "javascript", cl
 
   return (
     <motion.div 
-      className={cn("relative rounded-xl overflow-hidden shadow-2xl border border-white/10", className)}
+      className={cn("relative overflow-hidden shadow-2xl border border-white/10", className)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

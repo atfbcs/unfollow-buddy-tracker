@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import Tutorial from "@/components/Tutorial";
@@ -251,7 +250,6 @@ const Index = () => {
       {/* Get the Script Section */}
       <section className="py-20 relative" id="code">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/5 to-blue-900/5 z-[-1]"></div>
-        <div className="noise opacity-[0.03]"></div>
         <div className="max-w-5xl mx-auto px-4 relative">
           <div className="text-center mb-12">
             <span className="inline-block py-1 px-4 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium mb-4 border border-blue-200 shadow-sm">
