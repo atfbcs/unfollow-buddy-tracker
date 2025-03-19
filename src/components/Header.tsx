@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
         className
       )}
     >
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="max-w-7xl mx-auto flex justify-center items-center w-full">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -40,30 +40,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             <span className="gradient-text">Not</span>Following
           </h1>
         </motion.div>
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-8 items-center animate-fade-in">
-          <a 
-            href="#how-it-works" 
-            className="text-sm font-medium hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform hover:after:origin-bottom-left hover:after:scale-x-100"
-          >
-            How It Works
-          </a>
-          <a 
-            href="#tutorial" 
-            className="text-sm font-medium hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform hover:after:origin-bottom-left hover:after:scale-x-100"
-          >
-            Tutorial
-          </a>
-          <motion.a 
-            href="#code" 
-            className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium hover:shadow-lg hover:shadow-blue-500/20 transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Get Script
-          </motion.a>
-        </nav>
+      
 
         {/* Mobile Menu Button */}
         <motion.button 
