@@ -5,96 +5,120 @@ import { cn } from "@/lib/utils";
 import CodeBlock from "./CodeBlock";
 import { ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
 
-const scriptCode = `function getCookie(cookieName) {
-  let cookies = \`; \${document.cookie}\`,
-      parts = cookies.split(\`; \${cookieName}=\`);
-  if (2 === parts.length) return parts.pop().split(";").shift()
+const scriptCode = `
+function getCookie(cookieName) {
+    let cookies = document.cookie,
+        parts = cookies.split(\`; \${cookieName}=\`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
 }
 
 function sleep(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function afterUrlGenerator(cursor) {
-  return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${cursor}"}\`
+    return \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24","after":"\${cursor}"}\`;
 }
 
-function unfollowUserUrlGenerator(userId) {
-  return \`https://www.instagram.com/web/friendships/\${userId}/unfollow/\`
-}
-
-let followedPeople, 
-    csrftoken = getCookie("csrftoken"),
+let csrftoken = getCookie("csrftoken"),
     ds_user_id = getCookie("ds_user_id"),
     initialURL = \`https://www.instagram.com/graphql/query/?query_hash=3dec7e2c57367ef3da3d987d89f9dbc8&variables={"id":"\${ds_user_id}","include_reel":"true","fetch_mutual":"false","first":"24"}\`,
     doNext = true,
     nonFollowers = [],
-    processedCount = 0,
-    batchCount = 0;
+    processedCount = 0;
 
 async function startScript() {
-  console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
-  console.log("%c Starting analysis...", "color: #6b7280; font-style: italic;");
-  
-  while (doNext) {
-    let response;
-    try {
-      response = await fetch(initialURL).then(res => res.json());
-    } catch (error) {
-      console.log("%c Network error, retrying...", "color: #ef4444;");
-      continue;
-    }
-    
-    // Initialize total count on first run
-    if (!followedPeople) {
-      followedPeople = response.data.user.edge_follow.count;
-      console.log("%c ACCOUNT SUMMARY ", "background: #1e40af; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px;");
-      console.log(\`%c Total accounts you follow: \${followedPeople}\`, "color: #6b7280;");
-    }
-    
-    // Update URL for next batch
-    doNext = response.data.user.edge_follow.page_info.has_next_page;
-    initialURL = afterUrlGenerator(response.data.user.edge_follow.page_info.end_cursor);
-    
-    // Process accounts
-    processedCount += response.data.user.edge_follow.edges.length;
-    response.data.user.edge_follow.edges.forEach(edge => {
-      if (!edge.node.follows_viewer) {
-        nonFollowers.push(edge.node);
-      }
-    });
-    
-    // Display progress
-    console.clear();
     console.log("%c INSTAGRAM NON-FOLLOWER FINDER ", "background: #1e40af; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
-    console.log(\`%c Processed: \${processedCount}/\${followedPeople} accounts (\${Math.round((processedCount/followedPeople) * 100)}%)\`, "color: #6b7280;");
-    console.log("%c ACCOUNTS NOT FOLLOWING YOU BACK ", "background: #4f46e5; color: white; font-size: 12px; padding: 3px 6px; border-radius: 2px; margin-top: 10px;");
-    
-    nonFollowers.forEach(user => {
-      console.log(\`%c @\${user.username}\`, "color: #1e40af; font-weight: bold;");
-    });
-    
-    // Add delay between batches
-    await sleep(Math.floor(400 * Math.random()) + 1000);
-    
-    // Add longer pause every 6 batches to avoid rate limiting
-    batchCount++;
-    if (6 < batchCount) {
-      batchCount = 0;
-      console.log("%c Taking a break to avoid rate limiting...", "color: #f59e0b; font-style: italic;");
-      await sleep(10000);
+    console.log("%c Collecting data, please wait...", "color: #6b7280; font-style: italic;");
+
+    while (doNext) {
+        let response;
+        try {
+            response = await fetch(initialURL).then(res => res.json());
+        } catch (error) {
+            console.log("%c Network error, retrying...", "color: #ef4444;");
+            continue;
+        }
+
+        doNext = response.data.user.edge_follow.page_info.has_next_page;
+        initialURL = afterUrlGenerator(response.data.user.edge_follow.page_info.end_cursor);
+
+        response.data.user.edge_follow.edges.forEach(edge => {
+            if (!edge.node.follows_viewer) {
+                nonFollowers.push(edge.node);
+            }
+        });
+
+        processedCount += response.data.user.edge_follow.edges.length;
+        console.clear();
+        console.log(\`%c Processed: \${processedCount} accounts...\`, "color: #6b7280;");
+        
+        await sleep(1000);
     }
-  }
-  
-  // Final results
-  console.log("%c ANALYSIS COMPLETE ", "background: #10b981; color: white; font-size: 14px; padding: 5px 10px; border-radius: 4px;");
-  console.log(\`%c Total accounts processed: \${processedCount}\`, "color: #6b7280;");
-  console.log(\`%c Found \${nonFollowers.length} accounts that don't follow you back\`, "color: #6b7280;");
+
+    console.log("%c Analysis complete! Injecting UI...", "color: #10b981; font-weight: bold;");
+    injectUI(nonFollowers);
 }
 
-startScript();`;
+function injectUI(nonFollowers) {
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = \`
+        /* Your CSS styles here */
+    \`;
+    document.head.appendChild(styleSheet);
+    
+    const container = document.createElement("div");
+    container.id = "nonFollowerList";
+    container.className = "non-follower-container";
+
+    const header = document.createElement("div");
+    header.className = "non-follower-header";
+    
+    const title = document.createElement("h3");
+    title.className = "non-follower-title";
+    title.innerHTML = \`Non-Followers <span class="non-follower-title-count">\${nonFollowers.length}</span>\`;
+    
+    const closeButton = document.createElement("button");
+    closeButton.className = "non-follower-close";
+    closeButton.innerHTML = "✕";
+    closeButton.addEventListener("click", () => {
+        container.style.animation = "fadeOut 0.3s forwards";
+        setTimeout(() => container.remove(), 300);
+    });
+
+    header.appendChild(title);
+    header.appendChild(closeButton);
+    container.appendChild(header);
+
+    const listContainer = document.createElement("div");
+    listContainer.className = "non-follower-list";
+
+    if (nonFollowers.length === 0) {
+        const emptyState = document.createElement("div");
+        emptyState.className = "non-follower-empty";
+        emptyState.innerHTML = "No non-followers found";
+        listContainer.appendChild(emptyState);
+    } else {
+        nonFollowers.forEach(user => {
+            const userElement = document.createElement("div");
+            userElement.className = "non-follower-item";
+            userElement.innerHTML = \`
+                <div class="non-follower-info">
+                    <span class="non-follower-username">@\${user.username}</span>
+                </div>
+                <button class="non-follower-button view" onclick="window.open('https://www.instagram.com/\${user.username}/', '_blank')">👁️</button>
+            \`;
+            listContainer.appendChild(userElement);
+        });
+    }
+
+    container.appendChild(listContainer);
+    document.body.appendChild(container);
+}
+
+startScript();
+`;
+
 
 interface Step {
   title: string;
@@ -129,6 +153,17 @@ const Tutorial: React.FC = () => {
             <li><strong>Firefox:</strong> Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">F12</kbd> or <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Ctrl+Shift+I</kbd></li>
             <li><strong>Safari:</strong> First enable Developer Tools in Safari's Advanced settings, then press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Cmd+Option+I</kbd></li>
           </ul>
+          <div className="p-3 mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+            <p className="text-sm">
+              <strong>Note:</strong> If pasting is blocked, type{" "}
+              <span className="px-1 py-0.5 bg-gray-200 rounded text-xs font-mono">
+                allow pasting
+              </span>{" "}
+              in the console and press{" "}
+              <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Enter</kbd> before
+              trying again.
+            </p>
+          </div>
         </div>
       )
     },
