@@ -672,6 +672,14 @@ const Index = () => {
       </section>
       
       <Footer />
+      <a
+        href="https://www.buymeacoffee.com/atfbcs"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 right-4 bg-yellow-400 text-black px-3 py-2 rounded-full shadow-md font-medium text-smflex items-center gap-2 hover:bg-yellow-500 transition-all"
+      >
+        ☕ Buy Me a Coffee
+      </a>
     </div>
   );
 };
