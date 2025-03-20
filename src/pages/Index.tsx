@@ -66,7 +66,6 @@ async function startScript() {
         await sleep(1000);
     }
 
-    console.log("%c Analysis complete! Injecting UI...", "color: #10b981; font-weight: bold;");
     injectUI(nonFollowers);
 }
 
